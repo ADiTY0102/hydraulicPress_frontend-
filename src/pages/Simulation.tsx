@@ -7,63 +7,26 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, Download, Play } from "lucide-react";
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-
-interface MotorSystemParams {
-  motorRpm: number;
-  pumpEfficiency: number;
-  systemLosses: number;
-}
-
-interface CylinderParams {
-  bore: number;
-  rod: number;
-  deadLoad: number;
-  holdingLoad: number;
-}
-
-interface CyclePhaseParams {
-  speed: number;
-  stroke: number;
-  time: number;
-}
-
-interface CyclePhases {
-  fastDown: CyclePhaseParams;
-  working: CyclePhaseParams;
-  holding: { time: number };
-  fastUp: CyclePhaseParams;
-}
-
-const generateGraphData = (params: any) => {
-  const data = [];
-  for (let i = 0; i <= 100; i++) {
-    const time = i * 0.1;
-    data.push({
-      time,
-      stroke: Math.sin(time * 0.5) * 50 + 50,
-      speed: Math.cos(time * 0.3) * 100 + 150,
-      flow: Math.sin(time * 0.4) * 300 + 400,
-      pressure: Math.cos(time * 0.6) * 60 + 100,
-      hydraulicPower: Math.sin(time * 0.2) * 15 + 20,
-      motorPower: Math.cos(time * 0.25) * 18 + 25,
-      idealMotorPower: Math.sin(time * 0.15) * 16 + 22,
-      swashplateAngle: Math.cos(time * 0.35) * 45 + 45,
-    });
-  }
-  return data;
-};
+import { useSimulation } from "@/contexts/SimulationContext";
 
 const GraphCard = ({ title, dataKey, color, unit }: { title: string; dataKey: string; color: string; unit: string }) => {
-  const data = generateGraphData({});
+  const { simulationData, isSimulated } = useSimulation();
 
   const downloadPNG = () => {
-    // Mock download functionality
-    console.log(`Downloading ${title} as PNG`);
+    // Create CSV data for download
+    const csvContent = simulationData.map(row => 
+      `${row.time},${row[dataKey as keyof typeof row]}`
+    ).join('\n');
+    const blob = new Blob([`Time,${title}\n${csvContent}`], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${title.replace(/\s+/g, '_')}.csv`;
+    link.click();
   };
 
   const downloadCSV = () => {
-    // Mock download functionality  
-    console.log(`Downloading ${title} as CSV`);
+    downloadPNG(); // Same as PNG for now - CSV download
   };
 
   return (
@@ -92,7 +55,7 @@ const GraphCard = ({ title, dataKey, color, unit }: { title: string; dataKey: st
       <CardContent>
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
+            <LineChart data={isSimulated ? simulationData : []}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis 
                 dataKey="time" 
@@ -129,35 +92,20 @@ const GraphCard = ({ title, dataKey, color, unit }: { title: string; dataKey: st
 };
 
 export default function Simulation() {
-  const [motorSystem, setMotorSystem] = useState<MotorSystemParams>({
-    motorRpm: 1800,
-    pumpEfficiency: 0.9,
-    systemLosses: 10,
-  });
-
-  const [cylinder, setCylinder] = useState<CylinderParams>({
-    bore: 25,
-    rod: 60,
-    deadLoad: 2,
-    holdingLoad: 8,
-  });
-
-  const [cyclePhases, setCyclePhases] = useState<CyclePhases>({
-    fastDown: { speed: 200, stroke: 300, time: 2 },
-    working: { speed: 3, stroke: 100, time: 4 },
-    holding: { time: 1 },
-    fastUp: { speed: 200, stroke: 400, time: 2 },
-  });
+  const { 
+    motorSystem, 
+    setMotorSystem, 
+    cylinder, 
+    setCylinder, 
+    cyclePhases, 
+    setCyclePhases, 
+    runSimulation,
+    isSimulated 
+  } = useSimulation();
 
   const [isMotorOpen, setIsMotorOpen] = useState(true);
   const [isCylinderOpen, setIsCylinderOpen] = useState(true);
   const [isCycleOpen, setIsCycleOpen] = useState(true);
-  const [simulationRun, setSimulationRun] = useState(false);
-
-  const runSimulation = () => {
-    setSimulationRun(true);
-    console.log("Running simulation with:", { motorSystem, cylinder, cyclePhases });
-  };
 
   const graphs = [
     { title: "Stroke vs Time", dataKey: "stroke", color: "hsl(var(--hydraulic-success))", unit: "mm" },
@@ -465,7 +413,7 @@ export default function Simulation() {
             Run Simulation
           </Button>
 
-          {simulationRun && (
+          {isSimulated && (
             <Badge variant="outline" className="w-full justify-center border-hydraulic-success text-hydraulic-success">
               Simulation Complete
             </Badge>

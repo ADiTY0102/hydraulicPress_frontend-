@@ -2,11 +2,52 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Download, FileText, Calendar, User, Settings } from "lucide-react";
+import { useSimulation } from "@/contexts/SimulationContext";
 
 export default function Report() {
+  const { motorSystem, cylinder, cyclePhases, simulationData, isSimulated } = useSimulation();
+
   const downloadReport = () => {
-    // Mock report download functionality
-    console.log("Downloading comprehensive report...");
+    if (!isSimulated) {
+      alert("Please run a simulation first to generate a report.");
+      return;
+    }
+
+    // Create comprehensive CSV report
+    const reportData = [
+      "Hydraulic Press Simulation Report",
+      `Generated on: ${new Date().toLocaleString()}`,
+      "",
+      "=== MOTOR & SYSTEM PARAMETERS ===",
+      `Motor RPM: ${motorSystem.motorRpm}`,
+      `Pump Efficiency: ${motorSystem.pumpEfficiency}`,
+      `System Losses (bar): ${motorSystem.systemLosses}`,
+      "",
+      "=== CYLINDER PARAMETERS ===",
+      `Bore (cm): ${cylinder.bore}`,
+      `Rod (mm): ${cylinder.rod}`,
+      `Dead Load (ton): ${cylinder.deadLoad}`,
+      `Holding Load (ton): ${cylinder.holdingLoad}`,
+      "",
+      "=== CYCLE PHASES ===",
+      `Fast Down - Speed: ${cyclePhases.fastDown.speed} mm/s, Stroke: ${cyclePhases.fastDown.stroke} mm, Time: ${cyclePhases.fastDown.time} s`,
+      `Working - Speed: ${cyclePhases.working.speed} mm/s, Stroke: ${cyclePhases.working.stroke} mm, Time: ${cyclePhases.working.time} s`,
+      `Holding - Time: ${cyclePhases.holding.time} s`,
+      `Fast Up - Speed: ${cyclePhases.fastUp.speed} mm/s, Stroke: ${cyclePhases.fastUp.stroke} mm, Time: ${cyclePhases.fastUp.time} s`,
+      "",
+      "=== SIMULATION RESULTS ===",
+      "Time,Stroke,Speed,Flow,Pressure,HydraulicPower,MotorPower,IdealMotorPower,SwashplateAngle",
+      ...simulationData.map(row => 
+        `${row.time.toFixed(2)},${row.stroke.toFixed(2)},${row.speed.toFixed(2)},${row.flow.toFixed(2)},${row.pressure.toFixed(2)},${row.hydraulicPower.toFixed(2)},${row.motorPower.toFixed(2)},${row.idealMotorPower.toFixed(2)},${row.swashplateAngle.toFixed(2)}`
+      )
+    ].join('\n');
+
+    const blob = new Blob([reportData], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `hydraulic_press_report_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
   };
 
   const reportData = {
@@ -109,18 +150,18 @@ export default function Report() {
                 <div>
                   <h4 className="font-medium text-foreground mb-2">Motor & System</h4>
                   <div className="space-y-1 text-sm text-muted-foreground">
-                    <div>Motor RPM: <span className="text-foreground">1800</span></div>
-                    <div>Pump Efficiency: <span className="text-foreground">90%</span></div>
-                    <div>System Losses: <span className="text-foreground">10 bar</span></div>
+                    <div className="text-sm text-muted-foreground">Motor RPM: <span className="text-foreground">{motorSystem.motorRpm}</span></div>
+                    <div className="text-sm text-muted-foreground">Pump Efficiency: <span className="text-foreground">{(motorSystem.pumpEfficiency * 100).toFixed(1)}%</span></div>
+                    <div className="text-sm text-muted-foreground">System Losses: <span className="text-foreground">{motorSystem.systemLosses} bar</span></div>
                   </div>
                 </div>
                 <div>
                   <h4 className="font-medium text-foreground mb-2">Cylinder Parameters</h4>
                   <div className="space-y-1 text-sm text-muted-foreground">
-                    <div>Bore: <span className="text-foreground">25 cm</span></div>
-                    <div>Rod: <span className="text-foreground">60 mm</span></div>
-                    <div>Dead Load: <span className="text-foreground">2 ton</span></div>
-                    <div>Holding Load: <span className="text-foreground">8 ton</span></div>
+                    <div className="text-sm text-muted-foreground">Bore: <span className="text-foreground">{cylinder.bore} cm</span></div>
+                    <div className="text-sm text-muted-foreground">Rod: <span className="text-foreground">{cylinder.rod} mm</span></div>
+                    <div className="text-sm text-muted-foreground">Dead Load: <span className="text-foreground">{cylinder.deadLoad} ton</span></div>
+                    <div className="text-sm text-muted-foreground">Holding Load: <span className="text-foreground">{cylinder.holdingLoad} ton</span></div>
                   </div>
                 </div>
               </div>
@@ -135,8 +176,11 @@ export default function Report() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Overall System Health</span>
-                  <Badge className="bg-hydraulic-success/20 text-hydraulic-success border-hydraulic-success">
-                    Excellent
+                  <Badge 
+                    variant={isSimulated ? "default" : "secondary"} 
+                    className={`${isSimulated ? "bg-hydraulic-success/20 text-hydraulic-success border-hydraulic-success" : "bg-muted text-muted-foreground"}`}
+                  >
+                    {isSimulated ? "Data Available" : "Run Simulation First"}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
