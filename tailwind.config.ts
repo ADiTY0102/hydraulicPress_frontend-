@@ -57,6 +57,25 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Hydraulic Theme Colors
+        hydraulic: {
+          primary: "hsl(var(--hydraulic-primary))",
+          secondary: "hsl(var(--hydraulic-secondary))",
+          success: "hsl(var(--hydraulic-success))",
+          warning: "hsl(var(--hydraulic-warning))",
+          danger: "hsl(var(--hydraulic-danger))",
+        },
+      },
+      backgroundImage: {
+        "gradient-hydraulic": "var(--gradient-hydraulic)",
+        "gradient-dark": "var(--gradient-dark)",
+      },
+      boxShadow: {
+        "hydraulic": "var(--shadow-hydraulic)",
+        "card": "var(--shadow-card)",
+      },
+      transitionTimingFunction: {
+        "smooth": "var(--transition-smooth)",
       },
       borderRadius: {
         lg: "var(--radius)",
