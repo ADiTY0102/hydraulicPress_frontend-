@@ -38,16 +38,34 @@ interface SimulationDataPoint {
   swashplateAngle: number;
 }
 
+interface MLResults {
+  anomaly_score?: number;
+  anomaly_threshold?: number;
+  class_probabilities?: number[];
+  cycle_class?: string;
+  is_anomaly?: boolean;
+  summary?: {
+    efficiency_pct?: number;
+    total_energy_kj?: number;
+  };
+  regressions?: {
+    max_flow_lpm?: number;
+    max_pressure_bar?: number;
+  };
+}
+
 interface SimulationContextType {
   motorSystem: MotorSystemParams;
   cylinder: CylinderParams;
   cyclePhases: CyclePhases;
   simulationData: SimulationDataPoint[];
   isSimulated: boolean;
+  mlResults: MLResults | null;
   setMotorSystem: (params: MotorSystemParams) => void;
   setCylinder: (params: CylinderParams) => void;
   setCyclePhases: (phases: CyclePhases) => void;
   runSimulation: () => void;
+  setMLResults: (results: MLResults) => void;
 }
 
 const SimulationContext = createContext<SimulationContextType | undefined>(undefined);
@@ -83,6 +101,7 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
 
   const [simulationData, setSimulationData] = useState<SimulationDataPoint[]>([]);
   const [isSimulated, setIsSimulated] = useState(false);
+  const [mlResults, setMLResults] = useState<MLResults | null>(null);
 
   const calculateSimulation = (): SimulationDataPoint[] => {
     const data: SimulationDataPoint[] = [];
@@ -121,28 +140,34 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
       let pressure = 0;
       let flow = 0;
       
-      // Determine current phase and calculate stroke
+      // Determine current phase and calculate stroke (N-shape: start high, go down, then up)
+      const totalStroke = cyclePhases.fastDown.stroke + cyclePhases.working.stroke;
+      
       if (currentTime <= cyclePhases.fastDown.time) {
         phase = 'fastDown';
         speed = cyclePhases.fastDown.speed;
-        currentStroke = (currentTime / cyclePhases.fastDown.time) * cyclePhases.fastDown.stroke;
+        // Start from maximum stroke and go down
+        currentStroke = totalStroke - (currentTime / cyclePhases.fastDown.time) * cyclePhases.fastDown.stroke;
         pressure = Pdead;
       } else if (currentTime <= cyclePhases.fastDown.time + cyclePhases.working.time) {
         phase = 'working';
         speed = cyclePhases.working.speed;
         const workingTime = currentTime - cyclePhases.fastDown.time;
-        currentStroke = cyclePhases.fastDown.stroke + (workingTime / cyclePhases.working.time) * cyclePhases.working.stroke;
+        // Continue going down during working phase
+        currentStroke = (totalStroke - cyclePhases.fastDown.stroke) - (workingTime / cyclePhases.working.time) * cyclePhases.working.stroke;
         pressure = Phold;
       } else if (currentTime <= cyclePhases.fastDown.time + cyclePhases.working.time + cyclePhases.holding.time) {
         phase = 'holding';
         speed = 0;
-        currentStroke = cyclePhases.fastDown.stroke + cyclePhases.working.stroke;
+        // Hold at minimum position
+        currentStroke = totalStroke - cyclePhases.fastDown.stroke - cyclePhases.working.stroke;
         pressure = Phold;
       } else {
         phase = 'fastUp';
-        speed = -cyclePhases.fastUp.speed;
+        speed = cyclePhases.fastUp.speed;
         const upTime = currentTime - cyclePhases.fastDown.time - cyclePhases.working.time - cyclePhases.holding.time;
-        currentStroke = cyclePhases.fastDown.stroke + cyclePhases.working.stroke - 
+        // Go back up to starting position
+        currentStroke = (totalStroke - cyclePhases.fastDown.stroke - cyclePhases.working.stroke) + 
                        (upTime / cyclePhases.fastUp.time) * cyclePhases.fastUp.stroke;
         pressure = Pup;
       }
@@ -198,10 +223,12 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
       cyclePhases,
       simulationData,
       isSimulated,
+      mlResults,
       setMotorSystem,
       setCylinder,
       setCyclePhases,
       runSimulation,
+      setMLResults,
     }}>
       {children}
     </SimulationContext.Provider>

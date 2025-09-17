@@ -84,7 +84,7 @@ const GraphCard = ({ title, dataKey, color, unit }: { title: string; dataKey: st
           </ResponsiveContainer>
         </div>
         <div className="mt-2 text-xs text-muted-foreground text-center">
-          Time (s) vs {title} ({unit})
+          {title} ({unit})
         </div>
       </CardContent>
     </Card>
