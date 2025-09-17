@@ -94,7 +94,7 @@ export default function Report() {
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
-      <div id="report-content" className="bg-white text-black p-6">
+      <div id="report-content" className="bg-card text-white p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">System Report</h1>
         <p className="text-muted-foreground">Comprehensive analysis and performance metrics</p>
@@ -137,7 +137,7 @@ export default function Report() {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <Card className="bg-gray-50 shadow-sm border">
+          <Card className="bg-white shadow-sm border">
             <CardContent className="p-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">{reportData.totalCycles}</div>
@@ -191,8 +191,8 @@ export default function Report() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Anomaly Detection</h4>
-                  <div className="space-y-1 text-sm text-gray-700">
+                  <h4 className="font-medium text-white mb-2">Anomaly Detection</h4>
+                  <div className="space-y-1 text-sm text-white">
                     <div>Score: <span className="font-medium">{mlResults.anomaly_score?.toFixed(4)}</span></div>
                     <div>Status: <span className={`font-medium ${mlResults.is_anomaly ? 'text-red-600' : 'text-green-600'}`}>
                       {mlResults.is_anomaly ? 'Anomaly Detected' : 'Normal Operation'}
@@ -200,22 +200,22 @@ export default function Report() {
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Cycle Classification</h4>
-                  <div className="space-y-1 text-sm text-gray-700">
+                  <h4 className="font-medium text-white mb-2">Cycle Classification</h4>
+                  <div className="space-y-1 text-sm text-white">
                     <div>Class: <span className="font-medium capitalize">{mlResults.cycle_class}</span></div>
                     <div>Confidence: <span className="font-medium">{Math.max(...(mlResults.class_probabilities || [])).toFixed(3)}</span></div>
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Performance</h4>
-                  <div className="space-y-1 text-sm text-gray-700">
+                  <h4 className="font-medium text-white mb-2">Performance</h4>
+                  <div className="space-y-1 text-sm text-white">
                     <div>Efficiency: <span className="font-medium">{mlResults.summary?.efficiency_pct?.toFixed(1)}%</span></div>
                     <div>Total Energy: <span className="font-medium">{mlResults.summary?.total_energy_kj?.toFixed(2)} kJ</span></div>
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Predictions</h4>
-                  <div className="space-y-1 text-sm text-gray-700">
+                  <h4 className="font-medium text-white mb-2">Predictions</h4>
+                  <div className="space-y-1 text-sm text-white">
                     <div>Pred. Flow: <span className="font-medium">{mlResults.regressions?.max_flow_lpm?.toFixed(1)} L/min</span></div>
                     <div>Pred. Pressure: <span className="font-medium">{mlResults.regressions?.max_pressure_bar?.toFixed(1)} bar</span></div>
                   </div>
@@ -227,7 +227,7 @@ export default function Report() {
 
         {/* Report Sections */}
         <div className="grid gap-4">
-          <Card className="bg-gray-50 shadow-sm border">
+          <Card className="bg-card shadow-sm border">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Settings className="w-5 h-5 text-blue-600" />
@@ -237,20 +237,20 @@ export default function Report() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Motor & System</h4>
-                  <div className="space-y-1 text-sm text-gray-700">
-                    <div>Motor RPM: <span className="font-medium text-gray-900">{motorSystem.motorRpm}</span></div>
-                    <div>Pump Efficiency: <span className="font-medium text-gray-900">{(motorSystem.pumpEfficiency * 100).toFixed(1)}%</span></div>
-                    <div>System Losses: <span className="font-medium text-gray-900">{motorSystem.systemLosses} bar</span></div>
+                  <h4 className="font-medium text-white mb-2">Motor & System</h4>
+                  <div className="space-y-1 text-sm text-white">
+                    <div>Motor RPM: <span className="font-medium text-white">{motorSystem.motorRpm}</span></div>
+                    <div>Pump Efficiency: <span className="font-medium text-white">{(motorSystem.pumpEfficiency * 100).toFixed(1)}%</span></div>
+                    <div>System Losses: <span className="font-medium text-white">{motorSystem.systemLosses} bar</span></div>
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Cylinder Parameters</h4>
-                  <div className="space-y-1 text-sm text-gray-700">
-                    <div>Bore: <span className="font-medium text-gray-900">{cylinder.bore} cm</span></div>
-                    <div>Rod: <span className="font-medium text-gray-900">{cylinder.rod} mm</span></div>
-                    <div>Dead Load: <span className="font-medium text-gray-900">{cylinder.deadLoad} ton</span></div>
-                    <div>Holding Load: <span className="font-medium text-gray-900">{cylinder.holdingLoad} ton</span></div>
+                  <h4 className="font-medium text-white mb-2">Cylinder Parameters</h4>
+                  <div className="space-y-1 text-sm text-white">
+                    <div>Bore: <span className="font-medium text-white">{cylinder.bore} cm</span></div>
+                    <div>Rod: <span className="font-medium text-white">{cylinder.rod} mm</span></div>
+                    <div>Dead Load: <span className="font-medium text-white">{cylinder.deadLoad} ton</span></div>
+                    <div>Holding Load: <span className="font-medium text-white">{cylinder.holdingLoad} ton</span></div>
                   </div>
                 </div>
               </div>
