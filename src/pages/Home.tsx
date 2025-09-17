@@ -22,39 +22,18 @@ const navigationButtons = [
     color: "hydraulic-primary"
   },
   {
-    title: "Auto",
-    description: "Automated process control",
-    icon: Play,
-    path: "/auto",
-    color: "hydraulic-secondary"
-  },
-  {
-    title: "Counter & Cycle Time",
-    description: "Production counters and timing",
-    icon: Clock,
-    path: "/simulation",
-    color: "hydraulic-success"
-  },
-  {
-    title: "Electronic Drawing",
-    description: "Electronic circuit diagrams",
+    title: "Summary",
+    description: "ML analysis and anomaly detection",
     icon: FileText,
-    path: "/electronic-drawing",
-    color: "hydraulic-warning"
-  },
-  {
-    title: "Hydraulic Drawing", 
-    description: "Hydraulic system schematics",
-    icon: Settings,
-    path: "/hydraulic-drawing",
-    color: "hydraulic-primary"
+    path: "/summary",
+    color: "hydraulic-secondary"
   },
   {
     title: "Hydraulic Graph",
     description: "Performance analytics and graphs",
     icon: TrendingUp,
     path: "/simulation",
-    color: "hydraulic-secondary"
+    color: "hydraulic-success"
   },
 ];
 

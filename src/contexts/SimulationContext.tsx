@@ -89,10 +89,25 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
     const totalCycleTime = cyclePhases.fastDown.time + cyclePhases.working.time + 
                           cyclePhases.holding.time + cyclePhases.fastUp.time;
     
-    // Calculate cylinder area in cm²
-    const pistonArea = Math.PI * Math.pow(cylinder.bore / 2, 2);
-    const rodArea = Math.PI * Math.pow(cylinder.rod / 20, 2); // Convert mm to cm
-    const annularArea = pistonArea - rodArea;
+    // Unit conversions according to formulas
+    const bore = cylinder.bore / 100; // cm to meters
+    const rod = cylinder.rod / 1000; // mm to meters
+    const deadLoad = cylinder.deadLoad * 1000; // ton to kg
+    const holdLoad = cylinder.holdingLoad * 1000; // ton to kg
+    
+    // Calculate cylinder areas (m²)
+    const A = Math.PI * Math.pow(bore / 2, 2); // Piston area
+    const Ar = Math.PI * Math.pow(rod / 2, 2); // Rod area
+    const Aret = A - Ar; // Return area
+    
+    // Calculate forces (N)
+    const Fdead = deadLoad * 9.81;
+    const Fhold = holdLoad * 9.81;
+    
+    // Calculate pressures (bar)
+    const Pdead = Fdead / (A * 100000); // Fast Down pressure
+    const Phold = Fhold / (A * 100000); // Working/Holding pressure
+    const Pup = Fdead / (Aret * 100000); // Fast Up pressure
 
     const timeStep = 0.1;
     const totalPoints = Math.floor(totalCycleTime / timeStep);
@@ -106,49 +121,51 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
       let pressure = 0;
       let flow = 0;
       
-      // Determine current phase
+      // Determine current phase and calculate stroke
       if (currentTime <= cyclePhases.fastDown.time) {
         phase = 'fastDown';
         speed = cyclePhases.fastDown.speed;
         currentStroke = (currentTime / cyclePhases.fastDown.time) * cyclePhases.fastDown.stroke;
-        pressure = (cylinder.deadLoad * 1000 * 9.81) / (pistonArea / 10000) / 100000; // Convert to bar
+        pressure = Pdead;
       } else if (currentTime <= cyclePhases.fastDown.time + cyclePhases.working.time) {
         phase = 'working';
         speed = cyclePhases.working.speed;
         const workingTime = currentTime - cyclePhases.fastDown.time;
         currentStroke = cyclePhases.fastDown.stroke + (workingTime / cyclePhases.working.time) * cyclePhases.working.stroke;
-        pressure = (cylinder.holdingLoad * 1000 * 9.81) / (pistonArea / 10000) / 100000; // Convert to bar
+        pressure = Phold;
       } else if (currentTime <= cyclePhases.fastDown.time + cyclePhases.working.time + cyclePhases.holding.time) {
         phase = 'holding';
         speed = 0;
         currentStroke = cyclePhases.fastDown.stroke + cyclePhases.working.stroke;
-        pressure = (cylinder.holdingLoad * 1000 * 9.81) / (pistonArea / 10000) / 100000;
+        pressure = Phold;
       } else {
         phase = 'fastUp';
         speed = -cyclePhases.fastUp.speed;
         const upTime = currentTime - cyclePhases.fastDown.time - cyclePhases.working.time - cyclePhases.holding.time;
         currentStroke = cyclePhases.fastDown.stroke + cyclePhases.working.stroke - 
                        (upTime / cyclePhases.fastUp.time) * cyclePhases.fastUp.stroke;
-        pressure = (cylinder.deadLoad * 1000 * 9.81) / (annularArea / 10000) / 100000;
+        pressure = Pup;
       }
       
-      // Calculate flow (L/min)
-      const areaForFlow = speed >= 0 ? pistonArea : annularArea;
-      flow = Math.abs(speed * areaForFlow / 10000) * 60 / 1000; // Convert to L/min
+      // Calculate flow (L/min) according to formula
+      const v = Math.abs(speed) / 1000; // Convert mm/s to m/s
+      const areaForFlow = phase === 'fastUp' ? Aret : A;
+      flow = areaForFlow * v * 60 * 1000; // Convert to L/min
       
       // Calculate hydraulic power (kW)
-      const hydraulicPower = (pressure * 100000 * flow / 60 / 1000) / 1000; // Convert to kW
+      const hydraulicPower = (pressure + motorSystem.systemLosses) * flow / 600;
       
-      // Calculate motor power considering efficiency
-      const motorPower = hydraulicPower / motorSystem.pumpEfficiency + 
-                        (motorSystem.systemLosses * flow / 60) / 1000;
+      // Calculate motor input power (kW)
+      const motorPower = hydraulicPower / motorSystem.pumpEfficiency;
       
-      // Ideal motor power (without losses)
-      const idealMotorPower = hydraulicPower / 0.95; // Assuming 95% ideal efficiency
+      // Ideal motor input power (kW)
+      const idealMotorPower = pressure * flow / 600;
       
-      // Calculate swashplate angle (degrees) based on flow demand
-      const maxFlow = (motorSystem.motorRpm * 0.05) / 60 * 1000; // Assumed displacement
-      const swashplateAngle = Math.min(90, (flow / maxFlow) * 90);
+      // Calculate swashplate angle (degrees)
+      const sinValue = Math.max(-1, Math.min(1, 
+        (flow * 1000 * Math.sin(25 * Math.PI / 180)) / (25 * 0.95 * motorSystem.motorRpm)
+      ));
+      const swashplateAngle = Math.asin(sinValue) * 180 / Math.PI;
       
       data.push({
         time: currentTime,
@@ -159,7 +176,7 @@ export const SimulationProvider = ({ children }: { children: ReactNode }) => {
         hydraulicPower: hydraulicPower,
         motorPower: motorPower,
         idealMotorPower: idealMotorPower,
-        swashplateAngle: swashplateAngle,
+        swashplateAngle: Math.abs(swashplateAngle),
       });
       
       currentTime += timeStep;

@@ -9,6 +9,7 @@ import { SimulationProvider } from "@/contexts/SimulationContext";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Simulation from "./pages/Simulation";
+import Summary from "./pages/Summary";
 import Report from "./pages/Report";
 import NotFound from "./pages/NotFound";
 
@@ -35,11 +36,9 @@ const App = () => (
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/simulation" element={<Simulation />} />
+                    <Route path="/summary" element={<Summary />} />
                     <Route path="/report" element={<Report />} />
                     <Route path="/shift" element={<Index />} />
-                    <Route path="/auto" element={<Index />} />
-                    <Route path="/electronic-drawing" element={<Index />} />
-                    <Route path="/hydraulic-drawing" element={<Index />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </div>

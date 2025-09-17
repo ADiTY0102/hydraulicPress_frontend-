@@ -145,34 +145,38 @@ export default function Simulation() {
                 <CardContent className="pt-4 space-y-4">
                   <div>
                     <Label htmlFor="motorRpm" className="text-xs">Motor RPM</Label>
-                    <Input
-                      id="motorRpm"
-                      type="number"
-                      value={motorSystem.motorRpm}
-                      onChange={(e) => setMotorSystem({...motorSystem, motorRpm: parseInt(e.target.value)})}
-                      className="bg-background border-border"
-                    />
+                      <Input
+                        id="motorRpm"
+                        type="number"
+                        step="0.1"
+                        value={motorSystem.motorRpm}
+                        onChange={(e) => setMotorSystem({...motorSystem, motorRpm: parseFloat(e.target.value) || 0})}
+                        className="bg-background border-border"
+                      />
                   </div>
                   <div>
                     <Label htmlFor="pumpEfficiency" className="text-xs">Pump Efficiency</Label>
-                    <Input
-                      id="pumpEfficiency"
-                      type="number"
-                      step="0.1"
-                      value={motorSystem.pumpEfficiency}
-                      onChange={(e) => setMotorSystem({...motorSystem, pumpEfficiency: parseFloat(e.target.value)})}
-                      className="bg-background border-border"
-                    />
+                      <Input
+                        id="pumpEfficiency"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="1"
+                        value={motorSystem.pumpEfficiency}
+                        onChange={(e) => setMotorSystem({...motorSystem, pumpEfficiency: parseFloat(e.target.value) || 0})}
+                        className="bg-background border-border"
+                      />
                   </div>
                   <div>
                     <Label htmlFor="systemLosses" className="text-xs">System Losses (bar)</Label>
-                    <Input
-                      id="systemLosses"
-                      type="number"
-                      value={motorSystem.systemLosses}
-                      onChange={(e) => setMotorSystem({...motorSystem, systemLosses: parseInt(e.target.value)})}
-                      className="bg-background border-border"
-                    />
+                      <Input
+                        id="systemLosses"
+                        type="number"
+                        step="0.1"
+                        value={motorSystem.systemLosses}
+                        onChange={(e) => setMotorSystem({...motorSystem, systemLosses: parseFloat(e.target.value) || 0})}
+                        className="bg-background border-border"
+                      />
                   </div>
                 </CardContent>
               </Card>
@@ -199,8 +203,9 @@ export default function Simulation() {
                     <Input
                       id="bore"
                       type="number"
+                      step="0.1"
                       value={cylinder.bore}
-                      onChange={(e) => setCylinder({...cylinder, bore: parseInt(e.target.value)})}
+                      onChange={(e) => setCylinder({...cylinder, bore: parseFloat(e.target.value) || 0})}
                       className="bg-background border-border"
                     />
                   </div>
@@ -209,8 +214,9 @@ export default function Simulation() {
                     <Input
                       id="rod"
                       type="number"
+                      step="0.1"
                       value={cylinder.rod}
-                      onChange={(e) => setCylinder({...cylinder, rod: parseInt(e.target.value)})}
+                      onChange={(e) => setCylinder({...cylinder, rod: parseFloat(e.target.value) || 0})}
                       className="bg-background border-border"
                     />
                   </div>
@@ -219,8 +225,9 @@ export default function Simulation() {
                     <Input
                       id="deadLoad"
                       type="number"
+                      step="0.1"
                       value={cylinder.deadLoad}
-                      onChange={(e) => setCylinder({...cylinder, deadLoad: parseInt(e.target.value)})}
+                      onChange={(e) => setCylinder({...cylinder, deadLoad: parseFloat(e.target.value) || 0})}
                       className="bg-background border-border"
                     />
                   </div>
@@ -229,8 +236,9 @@ export default function Simulation() {
                     <Input
                       id="holdingLoad"
                       type="number"
+                      step="0.1"
                       value={cylinder.holdingLoad}
-                      onChange={(e) => setCylinder({...cylinder, holdingLoad: parseInt(e.target.value)})}
+                      onChange={(e) => setCylinder({...cylinder, holdingLoad: parseFloat(e.target.value) || 0})}
                       className="bg-background border-border"
                     />
                   </div>
@@ -262,10 +270,11 @@ export default function Simulation() {
                         <Label className="text-xs">Speed (mm/s)</Label>
                         <Input
                           type="number"
+                          step="0.1"
                           value={cyclePhases.fastDown.speed}
                           onChange={(e) => setCyclePhases({
                             ...cyclePhases,
-                            fastDown: {...cyclePhases.fastDown, speed: parseInt(e.target.value)}
+                            fastDown: {...cyclePhases.fastDown, speed: parseFloat(e.target.value) || 0}
                           })}
                           className="h-8 text-xs bg-background border-border"
                         />
@@ -274,10 +283,11 @@ export default function Simulation() {
                         <Label className="text-xs">Stroke (mm)</Label>
                         <Input
                           type="number"
+                          step="0.1"
                           value={cyclePhases.fastDown.stroke}
                           onChange={(e) => setCyclePhases({
                             ...cyclePhases,
-                            fastDown: {...cyclePhases.fastDown, stroke: parseInt(e.target.value)}
+                            fastDown: {...cyclePhases.fastDown, stroke: parseFloat(e.target.value) || 0}
                           })}
                           className="h-8 text-xs bg-background border-border"
                         />
@@ -286,10 +296,11 @@ export default function Simulation() {
                         <Label className="text-xs">Time (s)</Label>
                         <Input
                           type="number"
+                          step="0.1"
                           value={cyclePhases.fastDown.time}
                           onChange={(e) => setCyclePhases({
                             ...cyclePhases,
-                            fastDown: {...cyclePhases.fastDown, time: parseInt(e.target.value)}
+                            fastDown: {...cyclePhases.fastDown, time: parseFloat(e.target.value) || 0}
                           })}
                           className="h-8 text-xs bg-background border-border"
                         />
@@ -305,10 +316,11 @@ export default function Simulation() {
                         <Label className="text-xs">Speed (mm/s)</Label>
                         <Input
                           type="number"
+                          step="0.1"
                           value={cyclePhases.working.speed}
                           onChange={(e) => setCyclePhases({
                             ...cyclePhases,
-                            working: {...cyclePhases.working, speed: parseInt(e.target.value)}
+                            working: {...cyclePhases.working, speed: parseFloat(e.target.value) || 0}
                           })}
                           className="h-8 text-xs bg-background border-border"
                         />
@@ -317,10 +329,11 @@ export default function Simulation() {
                         <Label className="text-xs">Stroke (mm)</Label>
                         <Input
                           type="number"
+                          step="0.1"
                           value={cyclePhases.working.stroke}
                           onChange={(e) => setCyclePhases({
                             ...cyclePhases,
-                            working: {...cyclePhases.working, stroke: parseInt(e.target.value)}
+                            working: {...cyclePhases.working, stroke: parseFloat(e.target.value) || 0}
                           })}
                           className="h-8 text-xs bg-background border-border"
                         />
@@ -329,10 +342,11 @@ export default function Simulation() {
                         <Label className="text-xs">Time (s)</Label>
                         <Input
                           type="number"
+                          step="0.1"
                           value={cyclePhases.working.time}
                           onChange={(e) => setCyclePhases({
                             ...cyclePhases,
-                            working: {...cyclePhases.working, time: parseInt(e.target.value)}
+                            working: {...cyclePhases.working, time: parseFloat(e.target.value) || 0}
                           })}
                           className="h-8 text-xs bg-background border-border"
                         />
@@ -347,10 +361,11 @@ export default function Simulation() {
                       <Label className="text-xs">Time (s)</Label>
                       <Input
                         type="number"
+                        step="0.1"
                         value={cyclePhases.holding.time}
                         onChange={(e) => setCyclePhases({
                           ...cyclePhases,
-                          holding: {time: parseInt(e.target.value)}
+                          holding: {time: parseFloat(e.target.value) || 0}
                         })}
                         className="h-8 text-xs bg-background border-border"
                       />
@@ -365,10 +380,11 @@ export default function Simulation() {
                         <Label className="text-xs">Speed (mm/s)</Label>
                         <Input
                           type="number"
+                          step="0.1"
                           value={cyclePhases.fastUp.speed}
                           onChange={(e) => setCyclePhases({
                             ...cyclePhases,
-                            fastUp: {...cyclePhases.fastUp, speed: parseInt(e.target.value)}
+                            fastUp: {...cyclePhases.fastUp, speed: parseFloat(e.target.value) || 0}
                           })}
                           className="h-8 text-xs bg-background border-border"
                         />
@@ -377,10 +393,11 @@ export default function Simulation() {
                         <Label className="text-xs">Stroke (mm)</Label>
                         <Input
                           type="number"
+                          step="0.1"
                           value={cyclePhases.fastUp.stroke}
                           onChange={(e) => setCyclePhases({
                             ...cyclePhases,
-                            fastUp: {...cyclePhases.fastUp, stroke: parseInt(e.target.value)}
+                            fastUp: {...cyclePhases.fastUp, stroke: parseFloat(e.target.value) || 0}
                           })}
                           className="h-8 text-xs bg-background border-border"
                         />
@@ -389,10 +406,11 @@ export default function Simulation() {
                         <Label className="text-xs">Time (s)</Label>
                         <Input
                           type="number"
+                          step="0.1"
                           value={cyclePhases.fastUp.time}
                           onChange={(e) => setCyclePhases({
                             ...cyclePhases,
-                            fastUp: {...cyclePhases.fastUp, time: parseInt(e.target.value)}
+                            fastUp: {...cyclePhases.fastUp, time: parseFloat(e.target.value) || 0}
                           })}
                           className="h-8 text-xs bg-background border-border"
                         />
